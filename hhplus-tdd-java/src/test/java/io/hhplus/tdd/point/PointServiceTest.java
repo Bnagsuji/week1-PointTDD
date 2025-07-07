@@ -9,6 +9,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 @ExtendWith(MockitoExtension.class)
 public class PointServiceTest {
@@ -20,12 +22,12 @@ public class PointServiceTest {
     UserPointRepository userPointRepository;
 
     @InjectMocks
-    PointService pointService;
+    PointServiceImpl pointService;
 
 
 
     @Test
-    void 포인트_조회() {
+    void 포인트_조회_테스트() {
 
         //given
         long userId = 123L;
@@ -33,13 +35,14 @@ public class PointServiceTest {
 
         UserPoint userPoint = new UserPoint(userId,point, System.currentTimeMillis());
 
-
         //when
         Mockito.when(userPointRepository.findById(userId)).thenReturn(userPoint);
 
+        //then
+        UserPoint result = pointService.getUserPoint(userId);
+        assertEquals(point, result.point());
 
         //verify
-
-
+        Mockito.verify(userPointRepository,Mockito.times(1)).findById(userId);
     }
 }
