@@ -1,6 +1,8 @@
 package io.hhplus.tdd.point;
 
 
+import io.hhplus.tdd.CustomPointException;
+import io.hhplus.tdd.repository.PointHistoryRepository;
 import io.hhplus.tdd.repository.UserPointRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,6 +14,7 @@ import java.util.List;
 public class PointServiceImpl implements PointService {
 
     private final UserPointRepository userPointRepository;
+    private final PointHistoryRepository pointHistoryRepository;
 
 
     @Override
@@ -26,7 +29,23 @@ public class PointServiceImpl implements PointService {
 
     @Override
     public UserPoint chargePoint(long userId, long amount) {
-        return null;
+
+
+        try {
+            long originPoint =  userPointRepository.findById(userId).point();
+
+            if((originPoint+amount > 100000L )|| amount < 100L) {
+                throw new CustomPointException("최소, 최대 포인트 충전 정책에 맞지 않는 금액입니다.");
+            }
+
+            UserPoint result = userPointRepository.insertOrUpdate(userId,originPoint+amount);
+            pointHistoryRepository.insert(result.id(), result.point(), TransactionType.CHARGE, result.updateMillis());
+            return  result;
+        }finally {
+
+        }
+
+
     }
 
     @Override
