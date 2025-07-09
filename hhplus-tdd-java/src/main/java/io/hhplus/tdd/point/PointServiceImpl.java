@@ -34,8 +34,14 @@ public class PointServiceImpl implements PointService {
         try {
             long originPoint =  userPointRepository.findById(userId).point();
 
-            if((originPoint+amount > 100000L )|| amount < 100L) {
-                throw new CustomPointException("최소, 최대 포인트 충전 정책에 맞지 않는 금액입니다.");
+            //한 번에 100000L를 초과하는 금액 충전 불가
+            if(amount > 100000L) {
+                throw new CustomPointException("최대 포인트 충전 정책에 맞지 않는 금액입니다.");
+            }
+
+            //충전 시 100L 미만의 금액 충전 불가
+            if(amount < 100L) {
+                throw new CustomPointException("최소 포인트 충전 정책에 맞지 않는 금액입니다.");
             }
 
             UserPoint result = userPointRepository.insertOrUpdate(userId,originPoint+amount);

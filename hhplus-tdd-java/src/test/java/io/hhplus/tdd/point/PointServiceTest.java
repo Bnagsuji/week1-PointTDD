@@ -1,5 +1,6 @@
 package io.hhplus.tdd.point;
 
+import io.hhplus.tdd.CustomPointException;
 import io.hhplus.tdd.repository.PointHistoryRepository;
 import io.hhplus.tdd.repository.UserPointRepository;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -76,4 +78,50 @@ public class PointServiceTest {
 
 
     }
+
+    @Test
+    void 포인트_충전_100L미만시_실패_테스트() {
+
+        //given
+        long userId = 123L;
+        long point = 90L;
+
+        //값을 넣어서 가짜DB 정보 만들기
+        Mockito.when(userPointRepository.findById(userId)).thenReturn(new UserPoint(userId,500L,System.currentTimeMillis()));
+        //when
+        //100미만 값 넣어서 원하는 예외가 나오는 지 테스트
+        CustomPointException ex =
+                assertThrows(CustomPointException.class,()-> pointService.chargePoint(userId,point));
+        //then
+        //원하는 예외 결과 비교
+        assertEquals(ex.getMessage(),"최소 포인트 충전 정책에 맞지 않는 금액입니다.");
+
+        //verify 예외처리 확인했기 때문에 생략
+    }
+
+
+
+    @Test
+    void 포인트_충전_100000L초과시_실패_테스트() {
+
+        //given
+        long userId = 123L;
+        long point = 100001L;
+
+        //값을 넣어서 가짜DB 정보 만들기
+        Mockito.when(userPointRepository.findById(userId)).thenReturn(new UserPoint(userId,500L,System.currentTimeMillis()));
+        //when
+        //100미만 값 넣어서 원하는 예외가 나오는 지 테스트
+        CustomPointException ex =
+                assertThrows(CustomPointException.class,()-> pointService.chargePoint(userId,point));
+        //then
+        //원하는 예외 결과 비교
+        assertEquals(ex.getMessage(),"최대 포인트 충전 정책에 맞지 않는 금액입니다.");
+
+        //verify 예외처리 확인했기 때문에 생략
+    }
+
+
+
+
 }
