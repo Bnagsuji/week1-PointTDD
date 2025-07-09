@@ -3,12 +3,16 @@ package io.hhplus.tdd.point;
 import io.hhplus.tdd.CustomPointException;
 import io.hhplus.tdd.repository.PointHistoryRepository;
 import io.hhplus.tdd.repository.UserPointRepository;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -186,6 +190,43 @@ public class PointServiceTest {
     }
 
 
+    @Test
+    void 유저_포인트_내역_조회_테스트() {
+        long userId = 123L;
+
+        List<PointHistory> historyList = List.of(
+                new PointHistory(1L,userId,300L,TransactionType.CHARGE,System.currentTimeMillis()),
+                new PointHistory(2L,userId,50L,TransactionType.USE,System.currentTimeMillis()),
+                new PointHistory(3L,userId,300L,TransactionType.CHARGE,System.currentTimeMillis())
+        );
+
+        Mockito.when(pointHistoryRepository.selectAllByUserId(userId)).thenReturn(historyList);
+
+        //when
+        List<PointHistory> result = pointService.userPointList(userId);
+
+        //then
+        Assertions.assertThat(result).hasSize(3);
+        Assertions.assertThat(result.get(0)).isEqualTo(historyList.get(0));
+        Assertions.assertThat(result.get(1).type()).isEqualTo(TransactionType.USE);
+
+        //verify
+        Mockito.verify(pointHistoryRepository).selectAllByUserId(userId);
+    }
+
+    @Test
+    void 유저_포인트_내역_미존재_시_처리_테스트() {
+        long userId = 123L;
+
+        List<PointHistory> historyList = Collections.emptyList();
+        Mockito.when(pointHistoryRepository.selectAllByUserId(userId)).thenReturn(historyList);
+
+        CustomPointException ex =
+                assertThrows(CustomPointException.class,()-> pointService.userPointList(userId));
+        //then
+        //원하는 예외 결과 비교
+        assertEquals(ex.getMessage(),"포인트 내역이 존재하지 않습니다.");
+    }
 
 
 }

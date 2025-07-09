@@ -7,6 +7,7 @@ import io.hhplus.tdd.repository.UserPointRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -73,6 +74,14 @@ public class PointServiceImpl implements PointService {
 
     @Override
     public List<PointHistory> userPointList(long userId) {
-        return null;
+
+        List<PointHistory> result = pointHistoryRepository.selectAllByUserId(userId);
+
+        //포인트 내역 없을 시
+        if (result.isEmpty()) {
+            throw new CustomPointException("포인트 내역이 존재하지 않습니다.");
+        }
+
+        return result;
     }
 }

@@ -23,6 +23,6 @@ public class PointHistoryRepositoryImpl implements PointHistoryRepository {
 
     @Override
     public List<PointHistory> selectAllByUserId(long userId) {
-        return List.of();
+        return pointHistoryTable.selectAllByUserId(userId);
     }
 }
