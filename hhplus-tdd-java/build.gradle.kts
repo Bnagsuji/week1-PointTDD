@@ -27,6 +27,7 @@ dependencies {
     annotationProcessor(libs.lombok)
     annotationProcessor(libs.spring.boot.configuration.processor)
     testImplementation(libs.spring.boot.starter.test)
+    testImplementation("com.h2database:h2")
 }
 
 // about source and compilation
