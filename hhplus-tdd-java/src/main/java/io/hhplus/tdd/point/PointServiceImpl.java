@@ -24,7 +24,24 @@ public class PointServiceImpl implements PointService {
 
     @Override
     public UserPoint usePoint(long userId, long amount) {
-        return null;
+
+        long originPoint = userPointRepository.findById(userId).point();
+
+
+        if(amount < 100L) {
+            throw new CustomPointException("현재 100포인트부터 사용 가능합니다.");
+        }
+
+        if(amount > originPoint) {
+            throw new CustomPointException("사용하려는 포인트가 현재 보유 중인 포인트보다 많습니다.");
+        }
+
+
+
+
+        UserPoint result = userPointRepository.insertOrUpdate(userId,originPoint-amount);
+        pointHistoryRepository.insert(result.id(), result.point(), TransactionType.USE, result.updateMillis());
+        return result;
     }
 
     @Override
@@ -34,15 +51,15 @@ public class PointServiceImpl implements PointService {
         try {
             long originPoint =  userPointRepository.findById(userId).point();
 
+            //충전 시 100L 미만의 금액 충전 불가
+            if(amount < 100L) {
+                throw new CustomPointException("최소 포인트 충전 정책에 맞지 않는 금액입니다.");
+            }
             //한 번에 100000L를 초과하는 금액 충전 불가
             if(amount > 100000L) {
                 throw new CustomPointException("최대 포인트 충전 정책에 맞지 않는 금액입니다.");
             }
 
-            //충전 시 100L 미만의 금액 충전 불가
-            if(amount < 100L) {
-                throw new CustomPointException("최소 포인트 충전 정책에 맞지 않는 금액입니다.");
-            }
 
             UserPoint result = userPointRepository.insertOrUpdate(userId,originPoint+amount);
             pointHistoryRepository.insert(result.id(), result.point(), TransactionType.CHARGE, result.updateMillis());
