@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class UserPointRepositoryImpl implements UserPointRepository {
 
+
     private final UserPointTable userPointTable;
 
     @Override
@@ -20,4 +21,11 @@ public class UserPointRepositoryImpl implements UserPointRepository {
     public UserPoint insertOrUpdate(long userId, long amount) {
         return userPointTable.insertOrUpdate(userId,amount);
     }
+
+    @Override
+    public void clear() {
+        userPointTable.clear();
+    }
+
+
 }

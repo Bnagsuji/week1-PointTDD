@@ -1,6 +1,9 @@
 package io.hhplus.tdd.point;
 
-import lombok.NonNull;
+import io.hhplus.tdd.dto.PointHistoryResponse;
+import io.hhplus.tdd.dto.PointRequest;
+import io.hhplus.tdd.dto.PointResponse;
+import io.hhplus.tdd.repository.PointHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,26 +17,28 @@ import java.util.List;
 public class PointController {
 
     private static final Logger log = LoggerFactory.getLogger(PointController.class);
-    private final PointService pointService;
+    private final PointServiceImpl pointService;
 
     /**
      * TODO - 특정 유저의 포인트를 조회하는 기능을 작성해주세요.
      */
     @GetMapping("{id}")
-    public UserPoint point(
+    public PointResponse point(
             @PathVariable long id
     ) {
-        return pointService.getUserPoint(id);
+        UserPoint userPoint = pointService.getUserPoint(id);
+        return PointResponse.from(userPoint);
     }
 
     /**
      * TODO - 특정 유저의 포인트 충전/이용 내역을 조회하는 기능을 작성해주세요.
      */
     @GetMapping("{id}/histories")
-    public List<PointHistory> history(
+    public List<PointHistoryResponse> history(
             @PathVariable long id
     ) {
-        return List.of();
+        List<PointHistory> list = pointService.userPointList(id);
+        return PointHistoryResponse.fromList(list);
     }
 
     /**
@@ -41,21 +46,25 @@ public class PointController {
      */
 
     @PatchMapping("{id}/charge")
-    public UserPoint charge(
+    public PointResponse charge(
             @PathVariable long id,
-            @RequestBody long amount
+            @RequestBody PointRequest pointRequest
     ) {
-        return new UserPoint(0, 0, 0);
+        UserPoint userPoint = pointService.chargePoint(id, pointRequest.amount());
+
+        return PointResponse.from(userPoint);
     }
 
     /**
      * TODO - 특정 유저의 포인트를 사용하는 기능을 작성해주세요.
      */
     @PatchMapping("{id}/use")
-    public UserPoint use(
+    public PointResponse use(
             @PathVariable long id,
-            @RequestBody long amount
+            @RequestBody PointRequest pointRequest
     ) {
-        return new UserPoint(0, 0, 0);
+        UserPoint userPoint = pointService.usePoint(id, pointRequest.amount());
+
+        return PointResponse.from(userPoint);
     }
 }

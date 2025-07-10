@@ -25,4 +25,9 @@ public class PointHistoryRepositoryImpl implements PointHistoryRepository {
     public List<PointHistory> selectAllByUserId(long userId) {
         return pointHistoryTable.selectAllByUserId(userId);
     }
+
+    @Override
+    public void clear() {
+        pointHistoryTable.clear();
+    }
 }
